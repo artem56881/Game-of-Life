@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Game of Life</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin: 0;
+			padding: 20px;
+		}
+		h1 {
+			margin-bottom: 20px;
+			text-align: center;
+		}
+		canvas {
+			border: 1px solid #ccc;
+		}
+		button {
+			margin: 10px;
+			padding: 10px 20px;
+			font-size: 16px;
+			border: none;
+			border-radius: 5px;
+			background-color: #4CAF50;
+			color: white;
+			cursor: pointer;
+			transition: background-color 0.3s;
+		}
+		button:hover {
+			background-color: #45a049;
+		}
+	</style>
+</head>
+<body>
+	<h1>Game of Life</h1>
+	<canvas id="myCanvas" width="600" height="600"></canvas>
+	<div>
+		<button onclick="stopSimulation()">Stop</button>
+		<button onclick="startSimulation()">Start</button>
+		<button onclick="doStep()">Step</button>
+		<button onclick="init()">Initialize</button>
+	</div>
+
+	<script>
+const fieldSize = 30;
+const celldSize = 20;
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d");
+ctx.fillStyle = "#F00";
+let field = new Array(fieldSize);
+
+for(let i = 0; i < fieldSize; i++) {
+	field[i] = new Array(fieldSize);
+}
+ 
+let nextField = new Array(fieldSize);
+
+for(let i = 0; i < fieldSize; i++){
+	nextField[i] = new Array(fieldSize);
+}
+
+function neighborCount(r, c) {//row column
+	let count = -field[r][c];
+	for(let i = -1; i <= 1; i++)
+		for(let j = -1; j <= 1; j++)
+			count += field[(r+i+fieldSize)%fieldSize][(c+j+fieldSize)%fieldSize];
+	return count;
+}
+ 
+function nextGen(){
+	for(let i = 0; i < fieldSize; i++)
+		for(let j = 0; j < fieldSize; j++){
+			nextField[i][j] = field[i][j];
+			if ((field[i][j] == 0) && (neighborCount(i,j) == 3)){
+                nextField[i][j] = 1;
+            }
+			else if ((field[i][j] == 1) && ((neighborCount(i,j) < 2) || (neighborCount(i,j) > 3))){
+                        nextField[i][j] = 0;
+                }
+		}
+}
+ 
+
+function draw() {
+    for(let i = 0; i < fieldSize; i++)
+		for(let j = 0; j < fieldSize; j++)
+			if (field[i][j] == 1){
+				ctx.fillStyle = "#000";
+				ctx.fillRect(i * celldSize, j * celldSize, celldSize, celldSize);
+			}
+			else{
+				ctx.fillStyle = "#FFF";
+				ctx.fillRect(i * celldSize, j * celldSize, celldSize, celldSize);
+			}
+}
+function doStep(){
+    //console.log(timer);
+	nextGen();
+	for(let i = 0; i < fieldSize; i++)
+		for(let j = 0; j < fieldSize; j++)
+			field[i][j] = nextField[i][j];
+    draw();
+}
+
+function clear() {
+	clearInterval(timer);
+    for(let i = 0; i < fieldSize; i++) {
+		for(let j = 0; j < fieldSize; j++) {
+			field[i][j] = 0;
+			nextField[i][j] = 0;
+		}
+	}
+}
+
+function stopSimulation() {
+    clearInterval(timer);
+}
+
+function startSimulation() {
+    timer = setInterval(doStep, 500);
+}
+function init() {
+    for(let i = 0; i < fieldSize; i++){
+        for(let j = 0; j < fieldSize; j++){
+            field[i][j] = (Math.random() > 0.9) * 1;
+        }
+    }
+    draw();
+}
+ function createGlider(){
+    field[7][5] = 1;
+    field[8][6] = 1;
+    field[6][7] = 1;
+    field[7][7] = 1;
+    field[8][7] = 1;
+
+ }
+ //let timer = setInterval(doStep, 500);
+	</script>
+</body>
+</html>
